@@ -19,14 +19,15 @@ int main(void) {
 
 	game->init("Chess", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 800, false);
 
+	game->render();
 
 	while (game->running()) {
 
 		frameStart = SDL_GetTicks();
 
 		game->handleEvents();
-		game->update();
-		game->render();
+		// game->update();
+		// game->render();
 
 		frameTime = SDL_GetTicks() - frameStart;
 
