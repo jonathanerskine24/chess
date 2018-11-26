@@ -1,2 +1,2 @@
 # chess
-Chess game made using C++ and SDL
+Chess game made using C++, using SDL (Simple Direct-media Library) to handle the graphics
