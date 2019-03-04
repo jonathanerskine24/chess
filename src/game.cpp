@@ -116,7 +116,14 @@ void Game::handleEvents() {
 						selectedTile->setPiece(NULL);
 						selectedTile->setOpen(true);
 						selectedPiece->setLocation(target->getY(), target->getX());
-						pieceSelected = false;					
+						pieceSelected = false;
+						if (whiteTurn) {
+							whiteTurn = false;
+							blackTurn = true;
+						} else {
+							whiteTurn = true;
+							blackTurn = false;
+						}					
 					} else {
 						// std::cout << "Invalid move!" << std::endl;
 						pieceSelected = false;
@@ -245,6 +252,9 @@ void Game::pieceClickCheck(position mousePos, Piece *piece) {
 }
 
 bool Game::checkValidMove(Piece* piece, Tile* tile) {
+	// check to make sure the right team is moving
+	if ((piece->getTeam() == 1) && !blackTurn) return false;
+	if ((piece->getTeam() == 0) && !whiteTurn) return false;
 
 	int x = 1;
 	if (piece->getTeam() == false) x = -1;
@@ -257,9 +267,9 @@ bool Game::checkValidMove(Piece* piece, Tile* tile) {
 	int pieceX = piece->getPos()->x;
 	int pieceY = piece->getPos()->y;
 
-	std::cout << "Tile: " << tileX << "," << tileY << std::endl;
-	std::cout << "Piece: " << pieceX << "," << pieceY << std::endl;
-	std::cout << "Tile Alpha: " << tile->getTileX() << "," << tile->getTileY() << std::endl;
+	// std::cout << "Tile: " << tileX << "," << tileY << std::endl;
+	// std::cout << "Piece: " << pieceX << "," << pieceY << std::endl;
+	// std::cout << "Tile Alpha: " << tile->getTileX() << "," << tile->getTileY() << std::endl;
 
 	int direction = 0;
 
@@ -410,6 +420,7 @@ bool Game::checkValidMove(Piece* piece, Tile* tile) {
 
 			return false;
 			break;
+
 		case 5: // king
 			if (abs(pieceX - tileX) > 1) return false;
 			else if (abs(pieceY - tileY) > 1) return false;
