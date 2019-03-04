@@ -53,6 +53,7 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
 	}
 
 	boardTex = TextureManager::LoadTexture("resources/board/board.png", renderer);
+	
 	board = new Board(renderer);
 
 }
@@ -77,7 +78,7 @@ void Game::handleEvents() {
 			position mousePos;
 			if ( event.button.button == SDL_BUTTON_LEFT ) {				
 				if (pieceSelected == false) {
-					std::cout << "piece is NOT selected" << std::endl;
+					// std::cout << "piece is NOT selected" << std::endl;
 					mousePos.y = (event.button.x / 100);
 					mousePos.x = (event.button.y / 100);
 					// std::cout << mousePos.x << " " << mousePos.y << std::endl;
@@ -86,7 +87,7 @@ void Game::handleEvents() {
 						pieceSelected = true;
 						selectedPiece = selectedTile->getPiece();
 						selectedPiece->setClicked(true);
-						std::cout << selectedTile->getTileX() << selectedTile->getTileY() << std::endl;						
+						// std::cout << selectedTile->getTileX() << selectedTile->getTileY() << std::endl;						
 					}
 				} else {
 					mousePos.y = (event.button.x / 100);
@@ -95,14 +96,14 @@ void Game::handleEvents() {
 					target = board->getTile(mousePos.x, mousePos.y);
 					if (target->getOpen() == false) {
 						if (target->getPiece()->getClicked() == true) {
-							std::cout << "clicked selected piece again!" << std::endl;
+							// std::cout << "clicked selected piece again!" << std::endl;
 							pieceSelected = false;
 							selectedPiece->setClicked(false);
 							selectedTile = NULL;
 							selectedPiece = NULL;
 							break;
 						} else {
-							std::cout << "Invalid move!" << std::endl;
+							// std::cout << "Invalid move!" << std::endl;
 							break;
 						}		
 					}
@@ -117,7 +118,7 @@ void Game::handleEvents() {
 						selectedPiece->setLocation(target->getY(), target->getX());
 						pieceSelected = false;					
 					} else {
-						std::cout << "Invalid move!" << std::endl;
+						// std::cout << "Invalid move!" << std::endl;
 						pieceSelected = false;
 						selectedPiece->setClicked(false);
 						selectedTile = NULL;
@@ -174,7 +175,7 @@ void Game::clean() {
 }
 
 
-// finish thisssssss
+// finish this
 bool Game::checkCollision(SDL_Rect a, SDL_Rect b) {
 	int leftA, leftB;
 	int rightA, rightB;
@@ -218,26 +219,26 @@ void Game::pieceClickCheck(position mousePos, Piece *piece) {
 		pieceSelected = true;
 		piece->setClicked(true);
 		selectedPiece = piece;
-		switch (piece->getType()) {
-			case 0:
-				std::cout << "Pawn clicked!" << std::endl;
-				break;
-			case 1:
-				std::cout << "Rook clicked!" << std::endl;
-				break;		
-			case 2:
-				std::cout << "Knight clicked!" << std::endl;
-				break;
-			case 3:
-				std::cout << "Bishop clicked!" << std::endl;
-				break;
-			case 4:
-				std::cout << "Queen clicked!" << std::endl;
-				break;
-			case 5:
-				std::cout << "King clicked!" << std::endl;
-				break;
-		} 
+		// switch (piece->getType()) {
+		// 	case 0:
+		// 		std::cout << "Pawn clicked!" << std::endl;
+		// 		break;
+		// 	case 1:
+		// 		std::cout << "Rook clicked!" << std::endl;
+		// 		break;		
+		// 	case 2:
+		// 		std::cout << "Knight clicked!" << std::endl;
+		// 		break;
+		// 	case 3:
+		// 		std::cout << "Bishop clicked!" << std::endl;
+		// 		break;
+		// 	case 4:
+		// 		std::cout << "Queen clicked!" << std::endl;
+		// 		break;
+		// 	case 5:
+		// 		std::cout << "King clicked!" << std::endl;
+		// 		break;
+		// } 
 	}
 
 	return;
@@ -295,6 +296,8 @@ bool Game::checkValidMove(Piece* piece, Tile* tile) {
 					piece->setPos(tileX, tileY);
 					// std::cout << "...done, path is clear." << std::endl;
 					return true;
+
+
 				} else if (tileY - pieceY == 0) {
 					int dist = tileX - pieceX;
 					if (pieceX - tileX > 0) direction = -1;
@@ -314,17 +317,106 @@ bool Game::checkValidMove(Piece* piece, Tile* tile) {
 			break;
 
 		case 2: // knight
+			if ((tileX - pieceX == 1) || (tileX - pieceX == -1)) {
+				if ((tileY - pieceY == 2) || (tileY - pieceY == -2)) {
+					piece->setPos(tileX, tileY);
+					return true;
+				}
+			} else if ((tileY - pieceY == 1) || (tileY - pieceY == -1)) {
+				if ((tileX - pieceX == 2) || (tileX - pieceX == -2)) {
+					piece->setPos(tileX, tileY);
+					return true;
+				}
+			}
 			return false;
 			break;
+
 		case 3: // bishop
+			if (abs(tileX - pieceX) == abs(tileY - pieceY)) {
+				return false;
+			}
+
+			if (((tileY - pieceY) / (tileX - pieceX) == 1.0) || ((tileY - pieceY) / (tileX - pieceX) == -1.0)) {
+				int ydist = tileY - pieceY;
+				int xdist = tileX - pieceX;
+				for (int i = 0; i < abs(ydist); i++) {
+					Tile *temp = board->getTile(pieceY + (i * (ydist / abs(ydist))), pieceX + (i * (xdist / abs(xdist))));
+					if (temp->getOpen() == false && i != 0) {
+						return false;
+					}
+				}
+
+				piece->setPos(tileX, tileY);
+				return true;
+			}
 			return false;
 			break;
+
 		case 4: // queen
+
+
+			if (tileX - pieceX == 0 || tileY - pieceY == 0) {
+				if (tileX - pieceX == 0) {
+					int dist = tileY - pieceY;
+					if (pieceY - tileY > 0) direction = -1;
+					else if (pieceY - tileY < 0) direction = 1;
+					// std::cout << "Beginning to check path..." << std::endl;
+					for (int i = 0; i < abs(dist); i++) {
+						Tile *temp = board->getTile(pieceY + (i * direction), pieceX);
+						// std::cout << temp->getTileX() << temp->getTileY();
+						if (temp->getOpen() == false && i != 0) {
+							// std::cout << "*";
+							// std::cout << std::endl << "...ERROR, PATH IS NOT CLEAR!" << std::endl;
+							// std::cout << "Occupied by: " << temp->getPiece()->getTeam() << " " << temp->getPiece()->getType() << std::endl;
+							return false;
+						}
+					}
+					piece->setPos(tileX, tileY);
+					// std::cout << "...done, path is clear." << std::endl;
+					std::cout << "***" << std::endl;
+					return true;
+
+
+				} else if (tileY - pieceY == 0) {
+					int dist = tileX - pieceX;
+					if (pieceX - tileX > 0) direction = -1;
+					else if (pieceX - tileX < 0) direction = 1;
+					for (int i = 0; i < abs(dist); i++) {
+						Tile *temp = board->getTile(pieceY, pieceX + (i * direction));
+						if (temp->getOpen() == false && i != 0) {
+							return false;
+						}
+					}
+					piece->setPos(tileX, tileY);
+					std::cout << "^^^" << std::endl;
+					return true;
+				}
+			}
+
+			if (abs(tileX - pieceX) == abs(tileY - pieceY)) {
+				int ydist = tileY - pieceY;
+				int xdist = tileX - pieceX;
+				for (int i = 0; i < abs(ydist); i++) {
+					Tile *temp = board->getTile(pieceY + (i * (ydist / abs(ydist))), pieceX + (i * (xdist / abs(xdist))));
+					if (temp->getOpen() == false && i != 0) {
+						return false;
+					}
+				}
+
+				piece->setPos(tileX, tileY);
+				std::cout << "@@@" << std::endl;
+				return true;
+			}
+
 			return false;
 			break;
 		case 5: // king
-			return false;
-			break;
+			if (abs(pieceX - tileX) > 1) return false;
+			else if (abs(pieceY - tileY) > 1) return false;
+			else {
+				piece->setPos(tileX, tileY);
+				return true;
+			}
 	}
 }
 
